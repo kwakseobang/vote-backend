@@ -8,13 +8,6 @@ assignees: kwakseobang
 
 ---
 
----
-name: "vote Issue"
-about: 기타 자유양식 이슈 템플릿
-title: "[이슈종류] "
-labels: ""
-assignees: ""
----
 
 
 ## ⚠️ Issue Type
