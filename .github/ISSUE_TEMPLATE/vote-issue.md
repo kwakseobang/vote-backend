@@ -1,5 +1,5 @@
 ---
-name: "\U0001F4AA Vote ISSUE"
+name: Vote ISSUE
 about: "- 관련 이슈를 적어주세요"
 title: Vote Issue
 labels: "\U0001F41E Bug, \U0001F527 Chore, \U0001F4C4 Docs, \U0001F4AB Feature, \U0001F5C2️
@@ -7,8 +7,6 @@ labels: "\U0001F41E Bug, \U0001F527 Chore, \U0001F4C4 Docs, \U0001F4AB Feature, 
 assignees: kwakseobang
 
 ---
-
-
 
 ## ⚠️ Issue Type
 다음중 하나의 이슈종류를 선택해주세요.
