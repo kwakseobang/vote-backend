@@ -1,4 +1,4 @@
-package com.kwakmunsu.config;
+package com.kwakmunsu.vote.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
