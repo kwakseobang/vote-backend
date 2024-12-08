@@ -1,7 +1,7 @@
 package com.kwakmunsu.vote.response;
 
-import com.kwakmunsu.vote.response.exception.MessageItem;
-import com.kwakmunsu.vote.response.exception.StatusItem;
+import com.kwakmunsu.vote.response.responseItem.MessageItem;
+import com.kwakmunsu.vote.response.responseItem.StatusItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -19,7 +19,8 @@ public enum ResponseCode  {
     // User 관련 실패 응답
     NOT_FOUND_USER(StatusItem.NOT_FOUND, MessageItem.NOT_FOUND_USER),
     BAD_REQUEST_USER(StatusItem.BAD_REQUEST, MessageItem.BAD_REQUEST_USER),
-    DUPLICATE_EMAIL(StatusItem.BAD_REQUEST, MessageItem.DUPLICATE_USER),
+    DUPLICATE_ID(StatusItem.BAD_REQUEST, MessageItem.DUPLICATE_ID),
+    DUPLICATE_NICKNAME(StatusItem.BAD_REQUEST, MessageItem.DUPLICATE_NICKNAME),
 
     // ===================== //
 
