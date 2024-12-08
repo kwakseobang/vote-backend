@@ -1,4 +1,4 @@
-package com.kwakmunsu.vote.response.exception;
+package com.kwakmunsu.vote.response.responseItem;
 
 public class MessageItem {
 
@@ -9,7 +9,8 @@ public class MessageItem {
         public static final String DELETE_USER = "SUCCESS - 회원 탈퇴 성공";
         public static final String NOT_FOUND_USER = "ERROR - 회원을 찾을 수 없습니다.";
         public static final String BAD_REQUEST_USER = "ERROR - 잘못된 회원 요청 에러";
-        public static final String DUPLICATE_USER = "ERROR - 회원가입 ID,닉네임 중복 에러";
+        public static final String DUPLICATE_ID = "ERROR - 회원가입 ID 중복 에러";
+        public static final String DUPLICATE_NICKNAME = "ERROR - 회원가입 닉네임 중복 에러";
 
         // < Memo >
         public static final String CREATED_VOTE = "SUCCESS - 투표 생성 성공";
