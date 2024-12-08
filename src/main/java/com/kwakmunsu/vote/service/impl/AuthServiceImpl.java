@@ -4,6 +4,7 @@ import com.kwakmunsu.vote.domain.User;
 import com.kwakmunsu.vote.dto.AuthDto.SignUpRequest;
 import com.kwakmunsu.vote.dto.AuthDto.UpdateRequest;
 import com.kwakmunsu.vote.repository.UserRepository;
+import com.kwakmunsu.vote.response.exception.UserException;
 import com.kwakmunsu.vote.service.AuthService;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,10 @@ public class AuthServiceImpl implements AuthService {
         String username = signUpRequestDto.getUsername();
         String nickname = signUpRequestDto.getNickname();
         userRepository.findByUsername(username)
-                        .ifPresent(user -> {throw new DuplicateRequestException("해당 id가 존재합니다."); });
+                        .ifPresent(user -> {throw new UserException.UserNameDuplicate(username);
+                        });
         userRepository.findByNickname(nickname)
-                .ifPresent(user -> {throw new DuplicateRequestException("해당 닉네임이 존재합니다."); });
+                .ifPresent(user -> {throw new UserException.NickNameDuplicate(nickname); });
 
         User user = signUpRequestDto.toEntity();
 
