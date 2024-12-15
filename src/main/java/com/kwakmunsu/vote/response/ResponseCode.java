@@ -35,6 +35,15 @@ public enum ResponseCode  {
     NOT_FOUND_VOTE(StatusItem.NOT_FOUND, MessageItem.NOT_FOUND_VOTE),
     BAD_REQUEST_VOTE(StatusItem.BAD_REQUEST, MessageItem.BAD_REQUEST_VOTE),
 
+    // ===================== //
+
+    // Token 성공 응답
+    REISSUE_SUCCESS(StatusItem.OK, MessageItem.REISSUE_SUCCESS),
+
+    // Token 실패 응답
+    TOKEN_EXPIRED(StatusItem.UNAUTHORIZED, MessageItem.TOKEN_EXPIRED),
+    TOKEN_ERROR(StatusItem.UNAUTHORIZED, MessageItem.TOKEN_ERROR),
+    BAD_REQUEST_TOKEN(StatusItem.BAD_REQUEST, MessageItem.BAD_REQUEST_TOKEN),
 
 
 
