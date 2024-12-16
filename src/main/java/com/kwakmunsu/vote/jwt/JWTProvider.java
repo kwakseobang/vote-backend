@@ -42,7 +42,7 @@ public class JWTProvider {
     // access/refresh 토큰 발급.
     public AuthDto.TokenResponse generateToken(Authentication authentication) {
         String at = createAccessToken(authentication,ACCESS);
-        String rt = createRefershToken(REFRESH);
+        String rt = createRefreshToken(REFRESH);
         long expiration = jwtUtil.getExpiration(at);
 
         return AuthDto.TokenResponse.builder()
@@ -65,7 +65,7 @@ public class JWTProvider {
 
     }
     // refershToken 발급 -> ac Token 재발급용 cliam은 카테고리 하나만.
-    public String createRefershToken(String category) {
+    public String createRefreshToken(String category) {
 
         return jwtUtil.createRefreshJwt(category,refreshTokenExpireTime);
 
