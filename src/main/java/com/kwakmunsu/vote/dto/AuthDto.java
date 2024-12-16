@@ -19,10 +19,10 @@ public class AuthDto {
         private String password;
         private String nickname;
 
-        public User toEntity() {
+        public User toEntity(String password) {
             return User.UserSaveBuilder()
                     .username(this.username)
-                    .password(this.password)
+                    .password(password) // 암호화
                     .nickname(this.nickname)
                     .build();
         }
