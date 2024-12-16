@@ -11,7 +11,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
+@Component
 public class JWTUtil {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String CATEGORY_KEY = "category";
@@ -42,6 +44,7 @@ public class JWTUtil {
     public Long getExpiration(String token) {
         return getClaimsFromToken(token).getPayload().getExpiration().getTime();
     }
+    // 만료 시 true
     public Boolean isExpired(String token) {
 
         return getClaimsFromToken(token).getPayload().getExpiration().before(new Date());

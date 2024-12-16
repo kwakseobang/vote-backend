@@ -1,19 +1,17 @@
 package com.kwakmunsu.vote.jwt;
 
 import com.kwakmunsu.vote.dto.AuthDto;
+import com.kwakmunsu.vote.jwt.dto.TokenValidation;
+import com.kwakmunsu.vote.response.ResponseCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import jakarta.annotation.PostConstruct;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,9 +19,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
 
 @Log4j2
 @RequiredArgsConstructor
+@Component
 public class JWTProvider {
 
     @Value("${spring.jwt.access.expiration}")
@@ -86,21 +86,25 @@ public class JWTProvider {
 
 
     // 토큰 유효성 체크
-    public boolean validateToken(String token) {
+    public TokenValidation validateToken(String token) {
         try {
             Jws<Claims> claims = jwtUtil.getClaimsFromToken(token);
-            return true;
+            // 유효할 시 유효 메세지를 넣어주며 반환
+            return new TokenValidation(ResponseCode.TOKEN_IS_VALID);
 
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
+            log.info("만료된 JWT 토큰");
+            return new TokenValidation(ResponseCode.TOKEN_EXPIRED);
+        } catch (SecurityException | MalformedJwtException e) {
+            log.info("잘못된 JWT 서명");
+            return new TokenValidation(ResponseCode.TOKEN_ERROR);
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰 입니다.");
+            log.info("지원되지 않는 JWT 서명");
+            return new TokenValidation(ResponseCode.TOKEN_HASH_NOT_SUPPORTED);
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
-            e.printStackTrace();
+            log.info("잘못된 JWT 토큰");
+            return new TokenValidation(ResponseCode.TOKEN_ERROR);
         }
-        return false;
+
     }
 }

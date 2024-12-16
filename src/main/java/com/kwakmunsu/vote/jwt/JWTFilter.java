@@ -1,5 +1,7 @@
 package com.kwakmunsu.vote.jwt;
 
+import com.kwakmunsu.vote.jwt.dto.TokenValidation;
+import com.kwakmunsu.vote.response.ResponseCode;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,19 +30,23 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request);
-
-        // 빈 문자열("")**이나 공백만 있는 문자열은 false이고 && 해당 Access Token이 만료되었다면 true
-        if(StringUtils.hasText(token) && jwtUtil.isExpired(token)) {
-            // JwtFilter에서 발생한 예외 처리는 ExceptionHandler가아닌, 앞단의 JwtExceptionFilter에게 던져짐.
-            // filter는 스프링 컨테이너 전 앞단에서 진행되기 때문이다.
-            throw new JwtException("토큰 만료 - ExpiredJwtException");
-        } else {
-            // JWT에서 토큰을 이용해 인증 정보를 추출 후 UsernamePasswordAuthenticationToken을 생성해 전달
-            // Authentication 객체를 생성하고, 이를 SecurityContext에 설정하여 이후의 요청에서 인증 정보를 사용할 수 있도록 힘.
-            Authentication authentication = tokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        // 빈 문자열("")**이나 공백만 있는 문자열은 false
+        if(!StringUtils.hasText(token)) {
+            handleMissingToken(request, response, filterChain);
+            return;
         }
+
+        TokenValidation tokenValidation = tokenProvider.validateToken(token);
+        // 토큰이 유효하지 않을 시.
+        if(!tokenValidation.isValid()) {
+            handleWrongToken(request, response, filterChain, tokenValidation);
+            return;
+        }
+
+
+        handleValidToken(token);
         filterChain.doFilter(request, response);
+
     }
 
 
@@ -60,4 +66,30 @@ public class JWTFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         return Arrays.stream(excludePath).anyMatch(path::startsWith);
     }
+    // JWT에서 토큰을 이용해 인증 정보를 추출 후 UsernamePasswordAuthenticationToken을 생성해 전달
+    // Authentication 객체를 생성하고, 이를 SecurityContext에 설정하여 이후의 요청에서 인증 정보를 사용할 수 있도록 힘.
+    private void handleValidToken(String token) {
+
+        Authentication authentication = tokenProvider.getAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        log.info("AUTH SUCCESS : {}", authentication.getName());
+    }
+
+
+    // 인증 오류 시
+    // JwtFilter에서 발생한 예외 처리는 ExceptionHandler가아닌, 앞단의 JwtExceptionFilter에게 던져짐.
+    // filter는 스프링 컨테이너 전 앞단에서 진행되기 때문이다.
+    private void handleWrongToken(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain,
+            TokenValidation tokenValidation) throws IOException, ServletException {
+        request.setAttribute("result", tokenValidation);
+        filterChain.doFilter(request, response);
+    }
+
+    private void handleMissingToken(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws IOException, ServletException {
+        request.setAttribute("result",
+                new TokenValidation(ResponseCode.WRONG_AUTH_HEADER));
+        filterChain.doFilter(request, response);
+    }
+
 }
