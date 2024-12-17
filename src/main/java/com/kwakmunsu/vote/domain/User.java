@@ -36,6 +36,9 @@ public class User {
 
     private String password;
 
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
 
     @Builder(builderClassName = "UserSaveBuilder", builderMethodName = "UserSaveBuilder")
     public User(String username, String password, String nickname) {
@@ -43,5 +46,17 @@ public class User {
         this.password = password;
         this.nickname = nickname;
         this.authority = Authority.ROLE_USER;
+        //  (refreshToken= null)
+    }
+
+    @Builder(builderClassName = "UserTokenSaveBuilder", builderMethodName = "UserTokenSaveBuilder")
+    public User(String username,Authority authority) {
+        this.username = username;
+        this.authority = authority;
+    }
+
+    // refresh 업데이트
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }
