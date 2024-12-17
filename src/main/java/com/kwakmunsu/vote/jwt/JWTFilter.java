@@ -2,7 +2,6 @@ package com.kwakmunsu.vote.jwt;
 
 import com.kwakmunsu.vote.jwt.dto.TokenValidation;
 import com.kwakmunsu.vote.response.ResponseCode;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +23,6 @@ public class JWTFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
     private final JWTProvider tokenProvider;
-    private final JWTUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,

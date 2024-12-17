@@ -11,7 +11,6 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,24 +35,30 @@ public class JWTProvider {
     private static final String BEARER_TYPE = "Bearer";
     private final JWTUtil jwtUtil;
 
-    private final CustomUserDetailsService customUserDetailsService;
 
 
-    // access/refresh 토큰 발급.
-    public AuthDto.TokenResponse generateToken(Authentication authentication) {
+    //응답에는 at만 던져주고 rf는 쿠키로 던져줄예저이라 따로 가져옴.
+    // access
+    public AuthDto.TokenResponse generateAccessToken(Authentication authentication) {
         String at = createAccessToken(authentication,ACCESS);
-        String rt = createRefreshToken(REFRESH);
         long expiration = jwtUtil.getExpiration(at);
 
         return AuthDto.TokenResponse.builder()
                 .grantType(BEARER_TYPE)
                 .accessToken(at)
-                .refreshToken(rt)
                 .accessTokenExpiresIn(expiration)
                 .build();
     }
 
-    // accessToken 발급
+    // refresh 토큰 발급.
+    public AuthDto.RefreshTokenResponse generateRefreshToken(Authentication authentication) {
+        String rt = createRefreshToken(REFRESH);
+        return AuthDto.RefreshTokenResponse.builder()
+                .refreshToken(rt)
+                .build();
+    }
+
+    // accessToken 생성
     public String createAccessToken(Authentication authentication,String category) {
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -64,11 +69,21 @@ public class JWTProvider {
        return jwtUtil.createAccessJwt(authentication,category,authority,accessTokenExpireTime);
 
     }
-    // refershToken 발급 -> ac Token 재발급용 cliam은 카테고리 하나만.
+    // refershToken 생성 -> ac Token 재발급용 cliam은 카테고리 하나만.
     public String createRefreshToken(String category) {
 
         return jwtUtil.createRefreshJwt(category,refreshTokenExpireTime);
 
+    }
+    // at 토큰이 만료되었을 때 refreshToken 으로 AccessToken 재발급 로직
+    public AuthDto.TokenResponse createAccessTokenByRefresh(Authentication authentication) {
+       String at =  createAccessToken(authentication,ACCESS);
+       long expiration = jwtUtil.getExpiration(at);
+        return AuthDto.TokenResponse.builder()
+                .grantType(BEARER_TYPE)
+                .accessToken(at)
+                .accessTokenExpiresIn(expiration)
+                .build();
     }
 
     // JWT에서 토큰을 이용해 인증 정보를 추출 후 UsernamePasswordAuthenticationToken을 생성해 전달

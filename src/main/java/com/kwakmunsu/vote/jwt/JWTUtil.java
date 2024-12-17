@@ -4,9 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,4 +78,5 @@ public class JWTUtil {
                 .signWith(secretKey)
                 .compact();
     }
+
 }
