@@ -22,12 +22,11 @@ public class Vote extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne // Room-Problem 단방향매핑
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "title", unique = true, nullable = false)
     private String title;
-
 
 }

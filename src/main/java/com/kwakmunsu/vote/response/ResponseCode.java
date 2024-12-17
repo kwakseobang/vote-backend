@@ -35,7 +35,20 @@ public enum ResponseCode  {
     NOT_FOUND_VOTE(StatusItem.NOT_FOUND, MessageItem.NOT_FOUND_VOTE),
     BAD_REQUEST_VOTE(StatusItem.BAD_REQUEST, MessageItem.BAD_REQUEST_VOTE),
 
+    // ===================== //
 
+    // Token 성공 응답
+    REISSUE_SUCCESS(StatusItem.OK, MessageItem.REISSUE_SUCCESS),
+    // 토큰 유효 응
+    TOKEN_IS_VALID(StatusItem.OK, MessageItem.TOKEN_IS_VALID),
+    // Token 실패 응답
+    TOKEN_EXPIRED(StatusItem.TOKEN_EXPIRED, MessageItem.TOKEN_EXPIRED),
+    TOKEN_ERROR(StatusItem.TOKEN_ERROR, MessageItem.TOKEN_ERROR),
+    BAD_REQUEST_TOKEN(StatusItem.BAD_REQUEST, MessageItem.BAD_REQUEST_TOKEN),
+    TOKEN_IS_BLACKLIST(StatusItem.TOKEN_IS_BLACKLIST,MessageItem.TOKEN_IS_BLACKLIST),
+    TOKEN_HASH_NOT_SUPPORTED(StatusItem.TOKEN_HASH_NOT_SUPPORTED,MessageItem.TOKEN_HASH_NOT_SUPPORTED),
+    WRONG_AUTH_HEADER(StatusItem.NO_AUTH_HEADER,MessageItem.WRONG_AUTH_HEADER),
+    TOKEN_VALIDATION_TRY_FAILED(StatusItem.TOKEN_VALIDATION_TRY_FAILED,MessageItem.TOKEN_VALIDATION_TRY_FAILED),
 
 
     // ===================== //

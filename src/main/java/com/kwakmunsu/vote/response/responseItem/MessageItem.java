@@ -27,6 +27,7 @@ public class MessageItem {
 
 
 
+
         // < Auth - Success>
         public static final String LOGIN_SUCCESS = "SUCCESS - 로그인 성공";
         public static final String UPDATE_PASSWORD = "SUCCESS - 비밀번호 수정 성공";
@@ -35,6 +36,18 @@ public class MessageItem {
         public static final String UNAUTHORIZED = "ERROR - Unauthorized 에러";
         public static final String FORBIDDEN = "ERROR - Forbidden 에러"; // 권한 없을 때
         public static final String PREVENT_GET_ERROR = "Status 204 - 리소스 및 리다이렉트 GET호출 에러 방지";
+
+        // < Token >
+        public static final String TOKEN_IS_VALID = "VALID - 유효한 토큰  ";
+        public static final String REISSUE_SUCCESS = "SUCCESS - JWT Access 토큰 재발급 성공";
+        public static final String TOKEN_EXPIRED = "ERROR - JWT 토큰 만료 에러";
+        public static final String TOKEN_ERROR = "ERROR - 잘못된 JWT 토큰 에러";
+        public static final String BAD_REQUEST_TOKEN = "ERROR - 잘못된 토큰 요청 에러";
+
+        public static final String TOKEN_IS_BLACKLIST = "ERROR - 폐기된 토큰";
+        public static final String TOKEN_HASH_NOT_SUPPORTED = "ERROR - 지원하지 않는 형식의 토큰";
+        public static final String WRONG_AUTH_HEADER = "ERROR - [Bearer ]로 시작하는 토큰이 없습니다.";
+        public static final String TOKEN_VALIDATION_TRY_FAILED = "ERROR - 토큰 인증 실패";
 
 
         // < Etc >

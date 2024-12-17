@@ -1,5 +1,7 @@
 package com.kwakmunsu.vote.service;
 
-public interface UserService {
+import com.kwakmunsu.vote.domain.User;
 
+public interface UserService {
+    User findUser(Long userId); //
 }
