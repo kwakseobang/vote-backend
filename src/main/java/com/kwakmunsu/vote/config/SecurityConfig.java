@@ -2,7 +2,6 @@ package com.kwakmunsu.vote.config;
 
 
 import com.kwakmunsu.vote.jwt.JWTFilter;
-import com.kwakmunsu.vote.jwt.JWTProvider;
 import com.kwakmunsu.vote.jwt.handler.JwtAccessDeniedHandler;
 import com.kwakmunsu.vote.jwt.handler.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
