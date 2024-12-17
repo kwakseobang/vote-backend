@@ -55,8 +55,6 @@ public class JWTUtil {
 
 
     public String createAccessJwt(Authentication authentication,String category,String auth,Long expiredMs ) {
-
-
         Date date = new Date();
         Date validity = new Date(date.getTime() + expiredMs);
         return Jwts.builder()

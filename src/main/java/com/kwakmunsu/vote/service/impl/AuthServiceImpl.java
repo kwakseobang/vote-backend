@@ -4,7 +4,6 @@ import com.kwakmunsu.vote.domain.User;
 import com.kwakmunsu.vote.dto.AuthDto;
 import com.kwakmunsu.vote.dto.AuthDto.LoginRequest;
 import com.kwakmunsu.vote.dto.AuthDto.SignUpRequest;
-import com.kwakmunsu.vote.dto.AuthDto.TokenResponse;
 import com.kwakmunsu.vote.dto.AuthDto.UpdateRequest;
 import com.kwakmunsu.vote.jwt.JWTProvider;
 import com.kwakmunsu.vote.jwt.dto.TokenValidation;
@@ -22,6 +21,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/*
+========== login logic ================
+1. login 요청 시 validAuth()로 사용자 인증을 함 -> token 생성 후 authenticationManager에게 토큰 던진 후 UserDetailService의
+loadUserByUsername를 통해 DB에서 검증
+인증된 사용자에 대한 Authentication 객체를 반환. 실패 시 예외 던짐.
+2. DB 에서 user 정보 가져온 후 refreshtoken 정보 가져온 후 유효성 검증 ( 잘못됐나, 만료인가)
+2-1. null 이거나 유효하지 않을 시 refreshtoken 생성 후 쿠키와 DB에 저장. 쿠키는 보안을 위해 응답 객체에 넣지 않고 쿠키로 보낸다.
+3. accesstoken은 Rt가 유효하던 안하던 무조건 생성됨.
+ */
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public AuthDto.TokenResponse login(LoginRequest loginRequestDto, HttpServletResponse response) {
-        Authentication authentication = vaildAuth(loginRequestDto.getUsername(),
+        Authentication authentication = validAuth(loginRequestDto.getUsername(),
                 loginRequestDto.getPassword());
 
         User user = userService.findUser(Long.valueOf(authentication.getName()));
@@ -67,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
         TokenValidation tokenValidation = tokenProvider.validateToken(refreshToken); // 유효성 검증
 
         if (refreshToken == null || !tokenValidation.isValid()) {  // rt가 DB에 없거나 유효하지 않을때. (만료됐거나 등)  -> at/rt update
-            refreshTokenResponse = tokenProvider.generateRefreshToken(authentication);
+            refreshTokenResponse = tokenProvider.generateRefreshToken();
             String newRefreshToken = refreshTokenResponse.getRefreshToken();
             Cookie refreshCookie = createCookie("REFRESH", newRefreshToken);
             response.addCookie(refreshCookie); // refreshToken을 쿠키에 담아서 응답에 추가
@@ -83,19 +91,19 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
-    // ============ 유틸성 메소드' ================
+    //        ============ 유틸성 메소드' ================
     // 반환된 객체로 아이디와 비밀번호가 일치하는지 검증하는 로직에 활용이 가능함.
     private static UsernamePasswordAuthenticationToken toAuthentication(String email,
             String password) {
         return new UsernamePasswordAuthenticationToken(email, password);
     }
 
-    private Authentication vaildAuth(String username, String password) {
-        // Spring Security의 인증 메커니즘을 사용하는 것이 보다 안전하고 확장 가능한 방법
+    private Authentication validAuth(String username, String password) {
+
         UsernamePasswordAuthenticationToken authenticationToken = toAuthentication(
                 username, password);
         Authentication authentication = authenticationManagerBuilder
-                .getObject().authenticate(authenticationToken);  // 아이디와 비밀번호가 일치하는지 검증.
+                .getObject().authenticate(authenticationToken);  // DB에서 아이디와 비밀번호가 일치하는지 검증.
         return authentication;
     }
 
