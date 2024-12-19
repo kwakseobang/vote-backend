@@ -32,7 +32,6 @@ public class AuthDto {
     public static class ReissueRequest {
 
         private String accessToken;
-        private String refreshToken;
     }
 
     @Getter

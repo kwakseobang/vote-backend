@@ -15,7 +15,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-// 401 에러 토큰 인증 에러 시 여기서 에러를 잡는다.
+// 401 에러 --> 토큰 인증 에러 시 여기서 에러를 잡는다.
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private static final String VALIDATION_RESULT_KEY = "result";
@@ -39,6 +39,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 error = ResponseCode.TOKEN_VALIDATION_TRY_FAILED;
             }
         }
+        // spring 컨테이너 들어서기 전에 필터들이 앞단에서 작동함. 오류시 클라이언트에게 오류 메세지 응답.
         sendError(response, error.getMessage(), error.getHttpStatus());
     }
 
@@ -46,10 +47,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         JwtExceptionResponse responseJson = new JwtExceptionResponse(
-                HttpStatus.valueOf(HttpServletResponse.SC_UNAUTHORIZED),
-                code,
-                msg,
-                LocalDateTime.now().toString()
+                HttpStatus.valueOf(HttpServletResponse.SC_UNAUTHORIZED), // 상태 메시지
+                code,  // 커스텀 상태코드
+                msg, // 커스텀 메세지
+                LocalDateTime.now().toString() // 오류 발생 시각
         );
 
         String jsonToString = objectMapper.writeValueAsString(responseJson);

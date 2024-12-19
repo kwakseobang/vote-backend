@@ -48,7 +48,7 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
 
-    // 요청 헤더에 Authorization를 보면 접두사 Bearer가 포함되어있음. 제외하고 실제 토큰을 가져오는 함수
+    // 요청 헤더에 Authorization를 보면 접두사 Bearer가 포함되어있음. 제외하고 실제 Access 토큰을 가져오는 함수
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if(bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
@@ -60,7 +60,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String[] excludePath = {"/login","/signup","/reissue"};
+        String[] excludePath = {"/login","/signup","/reissue","/swagger/**"};
         String path = request.getRequestURI();
         return Arrays.stream(excludePath).anyMatch(path::startsWith);
     }

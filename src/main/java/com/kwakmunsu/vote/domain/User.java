@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Getter
 @NoArgsConstructor
@@ -29,11 +30,14 @@ public class User {
     private Authority authority;
 
     @Column(name = "username", unique = true)
+    @NonNull
     private String username;
 
     @Column(name = "nickname", unique = true)
+    @NonNull
     private String nickname;
 
+    @NonNull
     private String password;
 
     @Column(name = "refresh_token")

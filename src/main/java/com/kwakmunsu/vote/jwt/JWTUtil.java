@@ -54,29 +54,15 @@ public class JWTUtil {
     }
 
 
-    public String createAccessJwt(Authentication authentication,String category,String auth,Long expiredMs ) {
-
-
+    public String creatToken(Authentication authentication,String category,String auth,Long expiredMs ) {
         Date date = new Date();
         Date validity = new Date(date.getTime() + expiredMs);
         return Jwts.builder()
-                .claim(CATEGORY_KEY,category)
+                .claim(CATEGORY_KEY, category)
                 .claim(USERNAME_KEY, authentication.getName())
                 .claim(AUTHORITIES_KEY, auth)
                 .expiration(validity)
                 .signWith(secretKey)
                 .compact();
     }
-
-    public String createRefreshJwt(String category,Long expiredMs) {
-        Date date = new Date();
-        Date validity = new Date(date.getTime() + expiredMs);
-
-        return Jwts.builder()
-                .claim(CATEGORY_KEY,category)
-                .expiration(validity)
-                .signWith(secretKey)
-                .compact();
-    }
-
 }
