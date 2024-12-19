@@ -32,4 +32,10 @@ public class UserException extends CustomException{
         }
     }
 
+    public static class TokenBadRequest extends UserException {
+        public TokenBadRequest(String message) {
+            super(ResponseCode.BAD_REQUEST_TOKEN, message);
+        }
+    }
+
 }
