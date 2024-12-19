@@ -8,6 +8,7 @@ import com.kwakmunsu.vote.dto.AuthDto.SignUpRequest;
 import com.kwakmunsu.vote.dto.AuthDto.TokenResponse;
 import com.kwakmunsu.vote.dto.AuthDto.UpdateRequest;
 import com.kwakmunsu.vote.jwt.JWTProvider;
+import com.kwakmunsu.vote.jwt.JWTUtil;
 import com.kwakmunsu.vote.jwt.dto.TokenValidation;
 import com.kwakmunsu.vote.repository.UserRepository;
 import com.kwakmunsu.vote.response.exception.UserException;
@@ -18,6 +19,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -35,6 +39,7 @@ loadUserByUsername를 통해 DB에서 검증
 3. accesstoken은 Rt가 유효하던 안하던 무조건 생성됨.
  */
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -44,6 +49,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserService userService;
     private final JWTProvider tokenProvider;
+    private final JWTUtil jwtUtil;
 
     @Transactional
     @Override
@@ -79,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
         TokenValidation tokenValidation = tokenProvider.validateToken(refreshToken); // 유효성 검증
 
         if (refreshToken == null || !tokenValidation.isValid()) {  // rt가 DB에 없거나 유효하지 않을때. (만료됐거나 등)  -> at/rt update
-            refreshTokenResponse = tokenProvider.generateRefreshToken();
+            refreshTokenResponse = tokenProvider.generateRefreshToken(authentication);
             String newRefreshToken = refreshTokenResponse.getRefreshToken();
             Cookie refreshCookie = createCookie("REFRESH", newRefreshToken);
             response.addCookie(refreshCookie); // refreshToken을 쿠키에 담아서 응답에 추가
@@ -98,13 +104,21 @@ public class AuthServiceImpl implements AuthService {
     @Override // Refresh Token으로 Access Token 재발급 메소드
     public TokenResponse reissue(ReissueRequest reissueRequestDto, HttpServletRequest request) {
         String refreshToken = getCookie(request); // 쿠키에서 RT 추출
-        String accessToken = reissueRequestDto.getAccessToken();
+
+        log.info("rt:" + jwtUtil.getClaimsFromToken(refreshToken));
         TokenValidation tokenValidation = tokenProvider.validateToken(refreshToken); // 유효성 검증
         if (!tokenValidation.isValid()) {
             throw new JwtException("입력한 Refresh Token은 잘못된 토큰입니다.");
         }
-        Authentication authentication = tokenProvider.getAuthentication(accessToken);
+        Authentication authentication = tokenProvider.getAuthentication(refreshToken);
+        String category = jwtUtil.getCategory(refreshToken);
+
+        if (!category.equals("refresh")) {
+            throw new UserException.TokenBadRequest("refresh 토큰이 아닙니다 = " + refreshToken);
+        }
+
         Long userId = Long.valueOf(authentication.getName());
+        log.info("rt id: " + userId);
         // DB의 사용자 Refresh Token 값과, 전달받은 Refresh Token의 불일치 여부 검사 -> 공격자가 유효한 형식으로 보낼수있음.
         String dbRefreshToken = userRepository.findRefreshTokenById(userId);
         if(dbRefreshToken == null || !(dbRefreshToken.equals(refreshToken))) {
