@@ -46,7 +46,7 @@ public class AuthController {
             @RequestBody AuthDto.ReissueRequest reissueRequestDto,
             HttpServletRequest request
     ) {
-        authService.reissue(reissueRequestDto,request);
-
+        AuthDto.TokenResponse tokenResponseDto =  authService.reissue(reissueRequestDto,request);
+        return ResponseData.toResponseEntity(ResponseCode.REISSUE_SUCCESS, tokenResponseDto);
     }
 }
