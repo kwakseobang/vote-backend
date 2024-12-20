@@ -87,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
         if (refreshToken == null || !tokenValidation.isValid()) {  // rt가 DB에 없거나 유효하지 않을때. (만료됐거나 등)  -> at/rt update
             refreshTokenResponse = tokenProvider.generateRefreshToken(authentication);
             String newRefreshToken = refreshTokenResponse.getRefreshToken();
-            Cookie refreshCookie = createCookie("REFRESH", newRefreshToken);
+            Cookie refreshCookie = createCookie("REFRESH", newRefreshToken,14 * 24 * 60 * 60); // 쿠키 2 week rt랑 동일
             response.addCookie(refreshCookie); // refreshToken을 쿠키에 담아서 응답에 추가
             user.updateRefreshToken(newRefreshToken);   // Transaction 영속성 컨텍스트 특성으로 인해 변경 감지하고 자동 DB update
         }
@@ -105,18 +105,7 @@ public class AuthServiceImpl implements AuthService {
     public TokenResponse reissue(ReissueRequest reissueRequestDto, HttpServletRequest request) {
         String refreshToken = getCookie(request); // 쿠키에서 RT 추출
 
-        log.info("rt:" + jwtUtil.getClaimsFromToken(refreshToken));
-        TokenValidation tokenValidation = tokenProvider.validateToken(refreshToken); // 유효성 검증
-        if (!tokenValidation.isValid()) {
-            throw new JwtException("입력한 Refresh Token은 잘못된 토큰입니다.");
-        }
-        Authentication authentication = tokenProvider.getAuthentication(refreshToken);
-        String category = jwtUtil.getCategory(refreshToken);
-
-        if (!category.equals("refresh")) {
-            throw new UserException.TokenBadRequest("refresh 토큰이 아닙니다 = " + refreshToken);
-        }
-
+        Authentication authentication = checkRefreshToken(refreshToken); // check RT
         Long userId = Long.valueOf(authentication.getName());
         log.info("rt id: " + userId);
         // DB의 사용자 Refresh Token 값과, 전달받은 Refresh Token의 불일치 여부 검사 -> 공격자가 유효한 형식으로 보낼수있음.
@@ -127,6 +116,24 @@ public class AuthServiceImpl implements AuthService {
        AuthDto.TokenResponse tokenResponseDto = tokenProvider.generateAccessToken(authentication); // at 빌급
         return tokenResponseDto;
     }
+
+    @Override
+    public void logout(HttpServletRequest request,HttpServletResponse response) {
+        String refreshToken = getCookie(request); // 쿠키에서 RT 추출
+        log.info("logout RT: " +  refreshToken);
+        Authentication authentication = checkRefreshToken(refreshToken); // check RT
+        Long userId = Long.valueOf(authentication.getName());
+        // DB의 사용자 Refresh Token 값과, 전달받은 Refresh Token의 일치 여부 검사 -> 공격자가 유효한 형식으로 보낼수있음.
+        String dbRefreshToken = userRepository.findRefreshTokenById(userId);
+        log.info("dbRefreshToken RT: " +  dbRefreshToken);
+        if(dbRefreshToken == null || !(dbRefreshToken.equals(refreshToken))) {
+            throw new UserException.TokenBadRequest("Refresh Token = " + refreshToken);
+        }
+        userRepository.deleteRefreshTokenById(userId); // DB  RT 삭제.
+        Cookie resetCookie = createCookie("REFRESH", null,0);
+        response.addCookie(resetCookie); // refreshToken을 쿠키에 담아서 응답에 추가
+    }
+
 
     //        ============ 유틸성 메소드' ================
     // 반환된 객체로 아이디와 비밀번호가 일치하는지 검증하는 로직에 활용이 가능함.
@@ -144,10 +151,26 @@ public class AuthServiceImpl implements AuthService {
         return authentication;
     }
 
-    private Cookie createCookie(String key, String value) {
+    private Authentication checkRefreshToken(String refreshToken) {
+        TokenValidation tokenValidation = tokenProvider.validateToken(refreshToken); // 유효성 검증
+        if (!tokenValidation.isValid()) {
+            throw new JwtException("입력한 Refresh Token은 잘못된 토큰입니다.");
+        }
+
+        Authentication authentication = tokenProvider.getAuthentication(refreshToken);
+        String category = jwtUtil.getCategory(refreshToken);
+
+        if (!category.equals("refresh")) {
+            throw new UserException.TokenBadRequest("refresh 토큰이 아닙니다 = " + refreshToken);
+        }
+
+        return authentication;
+    }
+
+    private Cookie createCookie(String key, String value, int age) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(14 * 24 * 60 * 60); // 쿠키 2 week rt랑 동일
+        cookie.setMaxAge(age);
         //cookie.setSecure(true);
         cookie.setPath("/"); // 쿠키 사용 경로
         cookie.setHttpOnly(true); // 앞단에서 쿠키 접근 못하게 함. 필수임.    // JavaScript에서 접근 불가

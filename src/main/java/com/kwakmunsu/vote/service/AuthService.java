@@ -11,4 +11,7 @@ public interface AuthService {
 
     // Refresh토큰으로 access 토큰 재발급.
     AuthDto.TokenResponse reissue(AuthDto.ReissueRequest reissueRequestDto, HttpServletRequest request);
+    void logout(HttpServletRequest request,HttpServletResponse response);
+
+
 }
