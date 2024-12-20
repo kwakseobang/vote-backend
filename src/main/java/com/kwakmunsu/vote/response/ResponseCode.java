@@ -39,7 +39,7 @@ public enum ResponseCode  {
 
     // Token 성공 응답
     REISSUE_SUCCESS(StatusItem.OK, MessageItem.REISSUE_SUCCESS),
-    // 토큰 유효 응
+    // 토큰 유효 응답
     TOKEN_IS_VALID(StatusItem.OK, MessageItem.TOKEN_IS_VALID),
     // Token 실패 응답
     TOKEN_EXPIRED(StatusItem.TOKEN_EXPIRED, MessageItem.TOKEN_EXPIRED),
@@ -56,6 +56,7 @@ public enum ResponseCode  {
     // 기타 성공 응답
     READ_IS_LOGIN(StatusItem.OK, MessageItem.READ_IS_LOGIN),
     LOGIN_SUCCESS(StatusItem.OK, MessageItem.LOGIN_SUCCESS),
+    LOGOUT_SUCCESS(StatusItem.OK, MessageItem.LOGOUT_SUCCESS),
     UPDATE_PASSWORD(StatusItem.NO_CONTENT, MessageItem.UPDATE_PASSWORD),
     PREVENT_GET_ERROR(StatusItem.NO_CONTENT, MessageItem.PREVENT_GET_ERROR),
 
