@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity // 시큐리티에서 관리하게 됨
 public class SecurityConfig {
     private final String[] adminUrl = {"/admin/**"};
-    private final String[] permitAllUrl = {"/","/error","/login","/signup","/reissue","/swagger/**","/swagger-ui/**","/v3/api-docs/**"};
+    private final String[] permitAllUrl = {"/","/error","/login","/logout","/signup","/reissue","/swagger/**","/swagger-ui/**","/v3/api-docs/**"};
     private final String[] hasRoleUrl = {"/vote/**"};
 
     private final JWTFilter jwtFilter;
@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .formLogin((auth) -> auth.disable())
                 .httpBasic((auth) -> auth.disable())
                 .csrf((auth) -> auth.disable())
+                .logout((auth) -> auth.disable()) // spring 컨테이너에서 처리
                 .sessionManagement((session) -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
