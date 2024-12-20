@@ -30,6 +30,7 @@ public class MessageItem {
 
         // < Auth - Success>
         public static final String LOGIN_SUCCESS = "SUCCESS - 로그인 성공";
+        public static final String LOGOUT_SUCCESS = "SUCCESS - 로그아웃 성공 및 user Refresh Token 삭제";
         public static final String UPDATE_PASSWORD = "SUCCESS - 비밀번호 수정 성공";
         public static final String READ_IS_LOGIN = "SUCCESS - 현재 로그인 여부 조회 성공";
         // < Auth - Error>

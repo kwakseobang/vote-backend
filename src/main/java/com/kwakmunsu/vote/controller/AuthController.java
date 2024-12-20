@@ -10,13 +10,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@Log4j2
 @Tag(name = "Auth")
 @RestController
 @RequiredArgsConstructor
@@ -50,4 +53,12 @@ public class AuthController {
         AuthDto.TokenResponse tokenResponseDto =  authService.reissue(reissueRequestDto,request);
         return ResponseData.toResponseEntity(ResponseCode.REISSUE_SUCCESS, tokenResponseDto);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseData> logout(HttpServletRequest request,HttpServletResponse response) {
+        log.info("logout..");
+         authService.logout(request,response);
+        return ResponseData.toResponseEntity(ResponseCode.LOGOUT_SUCCESS);
+    }
+
 }
