@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
@@ -29,15 +30,22 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         TokenValidation result = (TokenValidation) request.getAttribute(VALIDATION_RESULT_KEY);
         ResponseCode error;
 
-        switch (result.getTokenStatus()) {
-            case TOKEN_EXPIRED -> error = ResponseCode.TOKEN_EXPIRED;
-            case TOKEN_IS_BLACKLIST -> error = ResponseCode.TOKEN_IS_BLACKLIST;
-            case TOKEN_ERROR -> error = ResponseCode.TOKEN_ERROR;
-            case TOKEN_HASH_NOT_SUPPORTED -> error = ResponseCode.TOKEN_HASH_NOT_SUPPORTED;
-            case WRONG_AUTH_HEADER -> error = ResponseCode.WRONG_AUTH_HEADER;
-            default -> {
-                error = ResponseCode.TOKEN_VALIDATION_TRY_FAILED;
+        if (result != null) {
+            switch (result.getTokenStatus()) {
+                case TOKEN_EXPIRED -> error = ResponseCode.TOKEN_EXPIRED;
+                case TOKEN_IS_BLACKLIST -> error = ResponseCode.TOKEN_IS_BLACKLIST;
+                case TOKEN_ERROR -> error = ResponseCode.TOKEN_ERROR;
+                case TOKEN_HASH_NOT_SUPPORTED -> error = ResponseCode.TOKEN_HASH_NOT_SUPPORTED;
+                case WRONG_AUTH_HEADER -> error = ResponseCode.WRONG_AUTH_HEADER;
+                default -> {
+                    error = ResponseCode.TOKEN_VALIDATION_TRY_FAILED;
+                }
             }
+        }else if (authException instanceof UsernameNotFoundException) {
+            // UsernameNotFoundException 처리: 사용자 인증 실패 시 401 반환
+            error = ResponseCode.NOT_FOUND_USER;
+        } else {
+            error = ResponseCode.TOKEN_VALIDATION_TRY_FAILED;
         }
         // spring 컨테이너 들어서기 전에 필터들이 앞단에서 작동함. 오류시 클라이언트에게 오류 메세지 응답.
         sendError(response, error.getMessage(), error.getHttpStatus());
