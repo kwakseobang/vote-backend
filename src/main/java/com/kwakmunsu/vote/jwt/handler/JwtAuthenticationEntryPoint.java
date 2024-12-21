@@ -10,13 +10,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 // 401 에러 --> 토큰 인증 에러 시 여기서 에러를 잡는다.
+@Log4j2
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private static final String VALIDATION_RESULT_KEY = "result";
@@ -26,11 +30,9 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
-
+        log.error("Unauthorized error: {}", authException.getMessage());
         TokenValidation result = (TokenValidation) request.getAttribute(VALIDATION_RESULT_KEY);
         ResponseCode error;
-
-        if (result != null) {
             switch (result.getTokenStatus()) {
                 case TOKEN_EXPIRED -> error = ResponseCode.TOKEN_EXPIRED;
                 case TOKEN_IS_BLACKLIST -> error = ResponseCode.TOKEN_IS_BLACKLIST;
@@ -41,12 +43,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                     error = ResponseCode.TOKEN_VALIDATION_TRY_FAILED;
                 }
             }
-        }else if (authException instanceof UsernameNotFoundException) {
-            // UsernameNotFoundException 처리: 사용자 인증 실패 시 401 반환
-            error = ResponseCode.NOT_FOUND_USER;
-        } else {
-            error = ResponseCode.TOKEN_VALIDATION_TRY_FAILED;
-        }
+
         // spring 컨테이너 들어서기 전에 필터들이 앞단에서 작동함. 오류시 클라이언트에게 오류 메세지 응답.
         sendError(response, error.getMessage(), error.getHttpStatus());
     }

@@ -18,10 +18,12 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import javax.naming.AuthenticationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -144,11 +146,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private Authentication validAuth(String username, String password) {
-
+        Authentication authentication = null;
         UsernamePasswordAuthenticationToken authenticationToken = toAuthentication(
                 username, password);
-        Authentication authentication = authenticationManagerBuilder
-                .getObject().authenticate(authenticationToken);  // DB에서 아이디와 비밀번호가 일치하는지 검증.
+        try {
+           authentication = authenticationManagerBuilder
+                    .getObject().authenticate(authenticationToken);  // DB에서 아이디와 비밀번호가 일치하는지 검증.
+        } catch (BadCredentialsException e ) {
+           throw new UserException.UNAUTHORIZED("인증되지 않은 사용자 ");
+        }
+
         return authentication;
     }
 
