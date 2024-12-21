@@ -38,4 +38,10 @@ public class UserException extends CustomException{
         }
     }
 
+    public static class UNAUTHORIZED extends UserException {
+        public UNAUTHORIZED(String message) {
+            super(ResponseCode.UNAUTHORIZED_ERROR, message);
+        }
+    }
+
 }
