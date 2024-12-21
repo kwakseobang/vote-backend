@@ -13,5 +13,8 @@ public interface AuthService {
     AuthDto.TokenResponse reissue(AuthDto.ReissueRequest reissueRequestDto, HttpServletRequest request);
     void logout(HttpServletRequest request,HttpServletResponse response);
 
+    boolean checkUsername(String username);
+    boolean checkNickname(String nickname);
+
 
 }

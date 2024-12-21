@@ -15,23 +15,43 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Log4j2
 @Tag(name = "Auth")
+@RequestMapping("/auth")
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
-    @PostMapping("/signup")
+    @PostMapping("/signup") // 중복 API는 따로 만듦. 해당 경로를 클라이언트에서 요청 시 유효하기 때문에 바로 DB 저장
     public ResponseEntity<ResponseData> signup(@RequestBody AuthDto.SignUpRequest signUpRequestDto) {
         authService.signup(signUpRequestDto);
         return ResponseData.toResponseEntity(ResponseCode.CREATED_USER);
-
-
+    }
+    @GetMapping("/username/{username}")
+    public ResponseEntity<ResponseData> checkUsername(@PathVariable String username) {
+        log.info("check username...");
+        if (authService.checkUsername(username)) { // 중복인 경우
+            return ResponseData.toResponseEntity(ResponseCode.DUPLICATE_ID);
+        } else {
+            return ResponseData.toResponseEntity(ResponseCode.USERNAME_SUCCESS);
+        }
+    }
+    @GetMapping("/nickname/{nickname}")
+    public ResponseEntity<ResponseData> checkNickname(@PathVariable String nickname) {
+        log.info("check nickname...");
+        if (authService.checkUsername(nickname)) { // 중복인 경우
+            return ResponseData.toResponseEntity(ResponseCode.DUPLICATE_NICKNAME);
+        } else {
+            return ResponseData.toResponseEntity(ResponseCode.NICKNAME_SUCCESS);
+        }
     }
 
     @PostMapping("/login")
@@ -60,5 +80,7 @@ public class AuthController {
          authService.logout(request,response);
         return ResponseData.toResponseEntity(ResponseCode.LOGOUT_SUCCESS);
     }
+
+
 
 }

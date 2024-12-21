@@ -54,17 +54,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public void signup(SignUpRequest signUpRequestDto) {
-        // 중복 체크
-        String username = signUpRequestDto.getUsername();
-        String nickname = signUpRequestDto.getNickname();
-        userRepository.findByUsername(username)
-                .ifPresent(user -> {
-                    throw new UserException.UserNameDuplicate(username);
-                });
-        userRepository.findByNickname(nickname)
-                .ifPresent(user -> {
-                    throw new UserException.NickNameDuplicate(nickname);
-                });
+
         String encodedPassword = bCryptPasswordEncoder.encode(signUpRequestDto.getPassword());
         User user = signUpRequestDto.toEntity(encodedPassword);
 
@@ -132,6 +122,17 @@ public class AuthServiceImpl implements AuthService {
         userRepository.deleteRefreshTokenById(userId); // DB  RT 삭제.
         Cookie resetCookie = createCookie("REFRESH", null,0);
         response.addCookie(resetCookie); // refreshToken을 쿠키에 담아서 응답에 추가
+    }
+
+    @Override
+    public boolean checkUsername(String username) {
+      return userRepository.existsByUsername(username);
+
+    }
+
+    @Override
+    public boolean checkNickname(String nickname) {
+       return userRepository.existsByNickname(nickname);
     }
 
 

@@ -56,6 +56,8 @@ public enum ResponseCode  {
     // 기타 성공 응답
     READ_IS_LOGIN(StatusItem.OK, MessageItem.READ_IS_LOGIN),
     LOGIN_SUCCESS(StatusItem.OK, MessageItem.LOGIN_SUCCESS),
+    USERNAME_SUCCESS(StatusItem.OK, MessageItem.USERNAME_SUCCESS),
+    NICKNAME_SUCCESS(StatusItem.OK, MessageItem.NICKNAME_SUCCESS),
     LOGOUT_SUCCESS(StatusItem.OK, MessageItem.LOGOUT_SUCCESS),
     UPDATE_PASSWORD(StatusItem.NO_CONTENT, MessageItem.UPDATE_PASSWORD),
     PREVENT_GET_ERROR(StatusItem.NO_CONTENT, MessageItem.PREVENT_GET_ERROR),
