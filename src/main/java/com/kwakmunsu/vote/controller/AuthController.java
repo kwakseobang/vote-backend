@@ -46,8 +46,8 @@ public class AuthController {
     }
     @GetMapping("/nickname/{nickname}")
     public ResponseEntity<ResponseData> checkNickname(@PathVariable String nickname) {
-        log.info("check nickname...");
-        if (authService.checkUsername(nickname)) { // 중복인 경우
+        log.info("check nickname...{}",nickname);
+        if (authService.checkNickname(nickname)) { // 중복인 경우
             return ResponseData.toResponseEntity(ResponseCode.DUPLICATE_NICKNAME);
         } else {
             return ResponseData.toResponseEntity(ResponseCode.NICKNAME_SUCCESS);
