@@ -27,7 +27,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserException.UserNotFound(username));
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+//        Spring MVC의 @ControllerAdvice나 @ExceptionHandler에서 잡을 수 없다 그래서 500이 던져졌음.
+// 해당 예외는 Spring Security 필터 체인 내부에서 발생하여서 AuthenticationEntryPoint로 예외를 잡음.
 
         return new CustomUserDetails(user);
 
